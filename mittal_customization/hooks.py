@@ -26,7 +26,7 @@ app_license = "mit"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/mittal_customization/css/mittal_customization.css"
-# app_include_js = "/assets/mittal_customization/js/mittal_customization.js"
+app_include_js = "/assets/mittal_customization/js/serial_no_batch_selector.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/mittal_customization/css/mittal_customization.css"
@@ -129,9 +129,9 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Serial and Batch Bundle": "mittal_customization.overrides.serial_and_batch_bundle.CustomSerialandBatchBundle"
+}
 
 # Document Events
 # ---------------
@@ -174,9 +174,13 @@ app_license = "mit"
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "mittal_customization.event.get_events"
-# }
+override_whitelisted_methods = {
+	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.is_serial_batch_no_exists": "mittal_customization.overrides.serial_and_batch_bundle.is_serial_batch_no_exists",
+	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.get_serial_batch_ledgers": "mittal_customization.overrides.serial_and_batch_bundle.get_serial_batch_ledgers",
+	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.add_serial_batch_ledgers": "mittal_customization.overrides.serial_and_batch_bundle.add_serial_batch_ledgers",
+	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.upload_csv_file": "mittal_customization.overrides.serial_and_batch_bundle.upload_csv_file",
+	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.get_auto_data": "mittal_customization.overrides.serial_and_batch_bundle.get_auto_data",
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
