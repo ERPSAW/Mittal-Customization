@@ -426,7 +426,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 					type_of_transaction: this.item.type_of_transaction,
 					serial_no: scan_serial_no,
 					batch_no: scan_batch_no,
-					warehouse: this.item.warehouse,         // Customization Code Add Line
+					warehouse: this.dialog.get_value("warehouse"),         // Customization Code Add Line
 					doctype: this.frm.doc.doctype,
 					fieldname: fieldname,
 					party_name: party_name,
