@@ -300,7 +300,7 @@ def make_serial_nos(item_code, serial_nos):
 
 
 @frappe.whitelist()
-def is_serial_batch_no_exists(item_code, type_of_transaction, serial_no=None, batch_no=None, warehouse=None, doctype=None, fieldname=None, party_name=None):
+def is_serial_batch_no_exists(item_code, type_of_transaction, warehouse, serial_no=None, batch_no=None, doctype=None, fieldname=None, party_name=None):
 	if serial_no.isdigit() and len(serial_no) == 15:
 		filters = {"custom_imei_no_1": serial_no}
 	else:
@@ -371,6 +371,11 @@ def is_serial_batch_no_exists(item_code, type_of_transaction, serial_no=None, ba
 		make_serial_no(serial_no, item_code)
 	
 	if serial_no and not frappe.db.exists("Serial No", {"warehouse": warehouse, "name": serial_no_value}) and type_of_transaction != "Inward":
+		if doctype != "Stock Entry":
+			frappe.throw(_("Serial No <b>{0}</b> does not exists in the warehouse <b>{1}</b>").format(serial_no, warehouse))
+
+	print(warehouse, '----------------')
+	if serial_no and not frappe.db.exists("Serial No", {"warehouse": warehouse, "name": serial_no_value, "status": ["!=", "Delivered"]}) and type_of_transaction != "Inward" and doctype == "Stock Entry":
 		frappe.throw(_("Serial No <b>{0}</b> does not exists in the warehouse <b>{1}</b>").format(serial_no, warehouse))
 
 	if batch_no and not frappe.db.exists("Batch", batch_no):
