@@ -9,6 +9,7 @@
   "unique_identifier",
   "country_code",
   "source_encoding_type",
+  "serial_no_starts",
   "column_break_ligu",
   "receiver_id",
   "sender_name",
@@ -65,13 +66,18 @@
    "fieldname": "region",
    "fieldtype": "Data",
    "label": "Region"
+  },
+  {
+   "fieldname": "serial_no_starts",
+   "fieldtype": "Data",
+   "label": "Serial No Starts"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-17 16:29:19.444944",
+ "modified": "2025-07-25 14:23:25.233799",
  "modified_by": "Administrator",
  "module": "Mittal Customization",
  "name": "DMS Settings",
