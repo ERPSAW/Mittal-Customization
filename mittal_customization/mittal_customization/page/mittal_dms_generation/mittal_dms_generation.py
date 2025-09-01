@@ -1,11 +1,12 @@
-import frappe
 import json
-from frappe import _
-from frappe.utils import getdate, now
 from datetime import datetime
 
+import frappe
+from frappe import _
+from frappe.utils import getdate, now
 
-class MitallDmsGeneration():
+
+class MitallDmsGeneration:
     def __init__(self):
         self.dms_settings = frappe.get_doc("DMS Settings", "DMS Settings")
         self.now_datetime = datetime.strptime(now(), '%Y-%m-%d %H:%M:%S.%f').strftime('%Y%m%d%H%M%S')
@@ -151,7 +152,7 @@ class MitallDmsGeneration():
                 "file_name": f"{self.dms_settings.senders_id}_{self.dms_settings.region}_{filters.type}_{self.small_now_date}{self.dms_settings.unique_identifier[-2:]}"
             }
 
-    def generate_header(self, filters):    
+    def generate_header(self, filters):
         txt_details = "\t".join([
             "CTRL",
             self.dms_settings.senders_id,

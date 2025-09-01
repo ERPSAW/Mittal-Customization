@@ -1,3 +1,5 @@
+/* global frappe, erpnext */
+
 class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector {
 	make() {
 		let label = this.item?.has_serial_no ? __("Serial Nos") : __("Batch Nos");

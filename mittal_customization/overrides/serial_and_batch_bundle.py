@@ -1,22 +1,23 @@
-import frappe
 import csv
-from frappe import _, bold
+
+import frappe
 from erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle import (
-    SerialandBatchBundle, 
-    SerialNoWarehouseError,
+	SerialandBatchBundle,
 	SerialNoDuplicateError,
+	SerialNoWarehouseError,
+	get_auto_batch_nos,
+	get_batch,
+	get_non_expired_batches,
+	get_reference_serial_and_batch_bundle,
 	get_reserved_serial_nos,
 	get_serial_nos_based_on_posting_date,
-	get_non_expired_batches,
-	parse_csv_file_to_get_serial_batch,
+	get_type_of_transaction,
 	make_batch_no,
 	make_batch_nos,
-	get_reference_serial_and_batch_bundle,
-	get_batch,
-	get_type_of_transaction,
-	get_auto_batch_nos
+	parse_csv_file_to_get_serial_batch,
 )
-from frappe.utils import nowtime, cint, now, parse_json, flt
+from frappe import _, bold
+from frappe.utils import cint, flt, now, nowtime, parse_json
 
 
 class CustomSerialandBatchBundle(SerialandBatchBundle):
@@ -369,7 +370,7 @@ def is_serial_batch_no_exists(item_code, type_of_transaction, warehouse, serial_
 			frappe.throw(_("Serial No {0} does not exists").format(serial_no))
 
 		make_serial_no(serial_no, item_code)
-	
+
 	if serial_no and not frappe.db.exists("Serial No", {"warehouse": warehouse, "name": serial_no_value}) and type_of_transaction != "Inward":
 		if doctype != "Stock Entry":
 			frappe.throw(_("Serial No <b>{0}</b> does not exists in the warehouse <b>{1}</b>").format(serial_no, warehouse))
@@ -396,7 +397,7 @@ def make_serial_no(serial_no, item_code):
 	serial_no_doc = frappe.new_doc("Serial No")
 	serial_no_doc.serial_no = generate_unique_serial_no()
 	serial_no_doc.item_code = item_code
-	
+
 	if serial_no.isdigit() and len(serial_no) == 15:
 		serial_no_doc.custom_imei_no_1 = serial_no
 	else:
