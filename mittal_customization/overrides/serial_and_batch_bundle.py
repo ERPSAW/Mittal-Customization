@@ -1,22 +1,23 @@
-import frappe
 import csv
-from frappe import _, bold
+
+import frappe
 from erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle import (
-    SerialandBatchBundle, 
-    SerialNoWarehouseError,
+	SerialandBatchBundle,
 	SerialNoDuplicateError,
+	SerialNoWarehouseError,
+	get_auto_batch_nos,
+	get_batch,
+	get_non_expired_batches,
+	get_reference_serial_and_batch_bundle,
 	get_reserved_serial_nos,
 	get_serial_nos_based_on_posting_date,
-	get_non_expired_batches,
-	parse_csv_file_to_get_serial_batch,
+	get_type_of_transaction,
 	make_batch_no,
 	make_batch_nos,
-	get_reference_serial_and_batch_bundle,
-	get_batch,
-	get_type_of_transaction,
-	get_auto_batch_nos
+	parse_csv_file_to_get_serial_batch,
 )
-from frappe.utils import nowtime, cint, now, parse_json, flt
+from frappe import _, bold
+from frappe.utils import cint, flt, now, nowtime, parse_json
 
 
 class CustomSerialandBatchBundle(SerialandBatchBundle):
@@ -48,7 +49,9 @@ class CustomSerialandBatchBundle(SerialandBatchBundle):
 				"""
 					Customization Code Showcase Scan Value
 				"""
-				serial_no_value = frappe.db.get_value("Serial No", serial_no, "custom_imei_no_1") or frappe.db.get_value("Serial No", serial_no, "custom_serial_no_id")
+				serial_no_value = frappe.db.get_value(
+					"Serial No", serial_no, "custom_imei_no_1"
+				) or frappe.db.get_value("Serial No", serial_no, "custom_serial_no_id")
 				self.throw_error_message(
 					f"Serial No {bold(serial_no_value)} is not present in the warehouse {bold(self.warehouse)}.",
 					SerialNoWarehouseError,
@@ -91,7 +94,9 @@ class CustomSerialandBatchBundle(SerialandBatchBundle):
 				"""
 					Customization Code Showcase Scan Value
 				"""
-				serial_no_value = frappe.db.get_value("Serial No", data.serial_no, "custom_imei_no_1") or frappe.db.get_value("Serial No", data.serial_no, "custom_serial_no_id")
+				serial_no_value = frappe.db.get_value(
+					"Serial No", data.serial_no, "custom_imei_no_1"
+				) or frappe.db.get_value("Serial No", data.serial_no, "custom_serial_no_id")
 				self.throw_error_message(
 					f"Serial No {bold(serial_no_value)} is already present in the warehouse {bold(data.warehouse)}.",
 					SerialNoDuplicateError,
@@ -105,7 +110,9 @@ class CustomSerialandBatchBundle(SerialandBatchBundle):
 				frappe.db.set_value("Serial No", entry.serial_no, "custom_imei_no_1", entry.custom_imei_no_1)
 
 			if not frappe.db.get_value("Serial No", entry.serial_no, "custom_serial_no_id"):
-				frappe.db.set_value("Serial No", entry.serial_no, "custom_serial_no_id", entry.custom_serial_no_id)
+				frappe.db.set_value(
+					"Serial No", entry.serial_no, "custom_serial_no_id", entry.custom_serial_no_id
+				)
 
 
 @frappe.whitelist()
@@ -117,9 +124,10 @@ def get_auto_data(**kwargs):
 	elif cint(kwargs.has_batch_no):
 		return get_auto_batch_nos(kwargs)
 
+
 def get_available_serial_nos(kwargs):
 	"""
-		Customization Code Showcase Serial No ID, IMEI No 1, IMEI No 2
+	Customization Code Showcase Serial No ID, IMEI No 1, IMEI No 2
 	"""
 	fields = ["name as serial_no", "warehouse", "custom_serial_no_id", "custom_imei_no_1", "custom_imei_no_2"]
 	if kwargs.has_batch_no:
@@ -175,6 +183,7 @@ def get_available_serial_nos(kwargs):
 		order_by=order_by,
 	)
 
+
 @frappe.whitelist()
 def upload_csv_file(item_code, file_path):
 	serial_nos, batch_nos = [], []
@@ -210,16 +219,16 @@ def get_serial_batch_from_csv(item_code, file_path):
 
 	for serial_no in serial_nos:
 		details = get_serial_no_from_imei_no(serial_no.get("serial_no", ""))
-		serial_no['serial_no'] = details.get("serial_no")
-		serial_no['custom_serial_no_id'] = details.get("custom_serial_no_id")
-		serial_no['custom_imei_no_1'] = details.get("custom_imei_no_1")
+		serial_no["serial_no"] = details.get("serial_no")
+		serial_no["custom_serial_no_id"] = details.get("custom_serial_no_id")
+		serial_no["custom_imei_no_1"] = details.get("custom_imei_no_1")
 
 	return serial_nos, batch_nos
 
 
 def make_serial_nos(item_code, serial_nos):
 	"""
-		Customization Code Function Code for Serial No ID and IMEI No
+	Customization Code Function Code for Serial No ID and IMEI No
 	"""
 	item = frappe.get_cached_value(
 		"Item", item_code, ["description", "item_code", "item_name", "warranty_period"], as_dict=1
@@ -273,8 +282,8 @@ def make_serial_nos(item_code, serial_nos):
 				item.description,
 				item.warranty_period or 0,
 				"Inactive",
-				serial_no if serial_no.isdigit() and len(serial_no) == 15 else '',
-				'' if serial_no.isdigit() and len(serial_no) == 15 else serial_no,
+				serial_no if serial_no.isdigit() and len(serial_no) == 15 else "",
+				"" if serial_no.isdigit() and len(serial_no) == 15 else serial_no,
 			)
 		)
 
@@ -291,7 +300,7 @@ def make_serial_nos(item_code, serial_nos):
 		"warranty_period",
 		"status",
 		"custom_imei_no_1",
-		"custom_serial_no_id"
+		"custom_serial_no_id",
 	]
 
 	frappe.db.bulk_insert("Serial No", fields=fields, values=set(serial_nos_details))
@@ -300,7 +309,16 @@ def make_serial_nos(item_code, serial_nos):
 
 
 @frappe.whitelist()
-def is_serial_batch_no_exists(item_code, type_of_transaction, warehouse, serial_no=None, batch_no=None, doctype=None, fieldname=None, party_name=None):
+def is_serial_batch_no_exists(
+	item_code,
+	type_of_transaction,
+	warehouse,
+	serial_no=None,
+	batch_no=None,
+	doctype=None,
+	fieldname=None,
+	party_name=None,
+):
 	if serial_no.isdigit() and len(serial_no) == 15:
 		filters = {"custom_imei_no_1": serial_no}
 	else:
@@ -330,9 +348,15 @@ def is_serial_batch_no_exists(item_code, type_of_transaction, warehouse, serial_
 		"""
 		result = frappe.db.sql(query, as_dict=1)
 		if result:
-			customer = frappe.db.get_value(result[0].get("voucher_type"), result[0].get("voucher_no"), "customer")
+			customer = frappe.db.get_value(
+				result[0].get("voucher_type"), result[0].get("voucher_no"), "customer"
+			)
 			if party_name != customer:
-				frappe.throw(_("Serial No <b>{0}</b> is already sell to other customer <b>{1}</b> in the voucher <b>{2}</b>").format(serial_no, customer, result[0].get("voucher_no")))
+				frappe.throw(
+					_(
+						"Serial No <b>{0}</b> is already sell to other customer <b>{1}</b> in the voucher <b>{2}</b>"
+					).format(serial_no, customer, result[0].get("voucher_no"))
+				)
 		else:
 			frappe.throw(_("Serial No <b>{0}</b> is not sell in the system").format(serial_no))
 
@@ -358,9 +382,15 @@ def is_serial_batch_no_exists(item_code, type_of_transaction, warehouse, serial_
 		"""
 		result = frappe.db.sql(query, as_dict=1)
 		if result:
-			supplier = frappe.db.get_value(result[0].get("voucher_type"), result[0].get("voucher_no"), "supplier")
+			supplier = frappe.db.get_value(
+				result[0].get("voucher_type"), result[0].get("voucher_no"), "supplier"
+			)
 			if party_name != supplier:
-				frappe.throw(_("Serial No <b>{0}</b> is already buy from other supplier <b>{1}</b> in the voucher <b>{2}</b>").format(serial_no, supplier, result[0].get("voucher_no")))
+				frappe.throw(
+					_(
+						"Serial No <b>{0}</b> is already buy from other supplier <b>{1}</b> in the voucher <b>{2}</b>"
+					).format(serial_no, supplier, result[0].get("voucher_no"))
+				)
 		else:
 			frappe.throw(_("Serial No <b>{0}</b> is not buy in the system").format(serial_no))
 
@@ -369,14 +399,31 @@ def is_serial_batch_no_exists(item_code, type_of_transaction, warehouse, serial_
 			frappe.throw(_("Serial No {0} does not exists").format(serial_no))
 
 		make_serial_no(serial_no, item_code)
-	
-	if serial_no and not frappe.db.exists("Serial No", {"warehouse": warehouse, "name": serial_no_value}) and type_of_transaction != "Inward":
-		if doctype != "Stock Entry":
-			frappe.throw(_("Serial No <b>{0}</b> does not exists in the warehouse <b>{1}</b>").format(serial_no, warehouse))
 
-	print(warehouse, '----------------')
-	if serial_no and not frappe.db.exists("Serial No", {"warehouse": warehouse, "name": serial_no_value, "status": ["!=", "Delivered"]}) and type_of_transaction != "Inward" and doctype == "Stock Entry":
-		frappe.throw(_("Serial No <b>{0}</b> does not exists in the warehouse <b>{1}</b>").format(serial_no, warehouse))
+	if (
+		serial_no
+		and not frappe.db.exists("Serial No", {"warehouse": warehouse, "name": serial_no_value})
+		and type_of_transaction != "Inward"
+	):
+		if doctype != "Stock Entry":
+			frappe.throw(
+				_("Serial No <b>{0}</b> does not exists in the warehouse <b>{1}</b>").format(
+					serial_no, warehouse
+				)
+			)
+
+	print(warehouse, "----------------")
+	if (
+		serial_no
+		and not frappe.db.exists(
+			"Serial No", {"warehouse": warehouse, "name": serial_no_value, "status": ["!=", "Delivered"]}
+		)
+		and type_of_transaction != "Inward"
+		and doctype == "Stock Entry"
+	):
+		frappe.throw(
+			_("Serial No <b>{0}</b> does not exists in the warehouse <b>{1}</b>").format(serial_no, warehouse)
+		)
 
 	if batch_no and not frappe.db.exists("Batch", batch_no):
 		if type_of_transaction != "Inward":
@@ -386,17 +433,17 @@ def is_serial_batch_no_exists(item_code, type_of_transaction, warehouse, serial_
 
 
 def generate_unique_serial_no():
-    while True:
-        new_serial = frappe.generate_hash(length=10)
-        if not frappe.db.exists("Serial No", {"serial_no": new_serial}):
-            return new_serial
+	while True:
+		new_serial = frappe.generate_hash(length=10)
+		if not frappe.db.exists("Serial No", {"serial_no": new_serial}):
+			return new_serial
 
 
 def make_serial_no(serial_no, item_code):
 	serial_no_doc = frappe.new_doc("Serial No")
 	serial_no_doc.serial_no = generate_unique_serial_no()
 	serial_no_doc.item_code = item_code
-	
+
 	if serial_no.isdigit() and len(serial_no) == 15:
 		serial_no_doc.custom_imei_no_1 = serial_no
 	else:
@@ -588,21 +635,26 @@ def update_serial_batch_no_ledgers(bundle, entries, child_row, parent_doc, wareh
 	return doc
 
 
-
 """
 	Custom Whitelist Function
 """
+
+
 @frappe.whitelist()
 def get_serial_no_from_imei_no(imei_no):
 	if imei_no.isdigit() and len(imei_no) == 15:
 		return {
 			"serial_no": frappe.db.get_value("Serial No", {"custom_imei_no_1": imei_no}, "serial_no"),
-			"custom_serial_no_id": frappe.db.get_value("Serial No", {"custom_imei_no_1": imei_no}, "custom_serial_no_id"),
+			"custom_serial_no_id": frappe.db.get_value(
+				"Serial No", {"custom_imei_no_1": imei_no}, "custom_serial_no_id"
+			),
 			"custom_imei_no_1": imei_no,
 		}
 	else:
 		return {
 			"serial_no": frappe.db.get_value("Serial No", {"custom_serial_no_id": imei_no}, "serial_no"),
 			"custom_serial_no_id": imei_no,
-			"custom_imei_no_1": frappe.db.get_value("Serial No", {"custom_serial_no_id": imei_no}, "custom_imei_no_1"),
+			"custom_imei_no_1": frappe.db.get_value(
+				"Serial No", {"custom_serial_no_id": imei_no}, "custom_imei_no_1"
+			),
 		}

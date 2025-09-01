@@ -1,3 +1,5 @@
+/* global erpnext */
+
 class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector {
 	make() {
 		let label = this.item?.has_serial_no ? __("Serial Nos") : __("Batch Nos");
@@ -92,7 +94,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 		];
 	}
 
-    get_dialog_fields() {
+	get_dialog_fields() {
 		let fields = [];
 
 		fields.push({
@@ -182,7 +184,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 		fields.push({
 			fieldname: "entries",
 			fieldtype: "Table",
-			cannot_add_rows: true, // Customization Code Add Line 
+			cannot_add_rows: true, // Customization Code Add Line
 			allow_bulk_edit: true,
 			depends_on: "eval:doc.enter_manually !== 1 || doc.entries?.length > 0",
 			data: [],
@@ -192,7 +194,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 		return fields;
 	}
 
-    get_attach_field() {
+	get_attach_field() {
 		let me = this;
 		let label = this.item?.has_serial_no ? __("Serial Nos") : __("Batch Nos");
 		let primary_label = this.bundle ? __("Update") : __("Add");
@@ -207,8 +209,9 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 				fieldtype: "Check",
 				label: __("Enter Manually"),
 				fieldname: "enter_manually",
-				default: 0,         // Customization Code Line Change
-				depends_on: "eval:doc.import_using_csv_file !== 1 && (doc?.update_stock == 0 || doc?.stock_entry_type !== 'Material Transfer')",
+				default: 0, // Customization Code Line Change
+				depends_on:
+					"eval:doc.import_using_csv_file !== 1 && (doc?.update_stock == 0 || doc?.stock_entry_type !== 'Material Transfer')",
 				change() {
 					if (me.dialog.get_value("enter_manually")) {
 						me.dialog.set_value("import_using_csv_file", 0);
@@ -223,7 +226,8 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 				fieldtype: "Check",
 				label: __("Import Using CSV file"),
 				fieldname: "import_using_csv_file",
-				depends_on: "eval:doc.enter_manually !== 1 && (doc?.update_stock == 0 || doc?.stock_entry_type !== 'Material Transfer')",
+				depends_on:
+					"eval:doc.enter_manually !== 1 && (doc?.update_stock == 0 || doc?.stock_entry_type !== 'Material Transfer')",
 				default: !this.item.has_serial_no ? 1 : 0,
 				change() {
 					if (me.dialog.get_value("import_using_csv_file")) {
@@ -294,7 +298,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 		return fields;
 	}
 
-    get_dialog_table_fields() {
+	get_dialog_table_fields() {
 		let fields = [];
 		let me = this;
 
@@ -304,7 +308,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 				options: "Serial No",
 				fieldname: "serial_no",
 				label: __("Serial No"),
-				hidden: 1,         // Customization Code Add Line
+				hidden: 1, // Customization Code Add Line
 				in_list_view: 1,
 				get_query: () => {
 					return {
@@ -313,7 +317,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 				},
 			});
 
-            // Customization Code Add Two Field Custom Adding
+			// Customization Code Add Two Field Custom Adding
 			fields.push({
 				fieldtype: "Data",
 				fieldname: "custom_serial_no_id",
@@ -354,7 +358,9 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 					get_query: () => {
 						let is_inward = false;
 						if (
-							(["Purchase Receipt", "Purchase Invoice"].includes(this.frm.doc.doctype) &&
+							(["Purchase Receipt", "Purchase Invoice"].includes(
+								this.frm.doc.doctype
+							) &&
 								!this.frm.doc.is_return) ||
 							(this.frm.doc.doctype === "Stock Entry" &&
 								this.frm.doc.purpose === "Material Receipt")
@@ -369,7 +375,9 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 							filters: {
 								item_code: this.item.item_code,
 								warehouse:
-									this.item.s_warehouse || this.item.t_warehouse || this.item.warehouse,
+									this.item.s_warehouse ||
+									this.item.t_warehouse ||
+									this.item.warehouse,
 								is_inward: is_inward,
 								include_expired_batches: include_expired_batches,
 							},
@@ -400,20 +408,20 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 		return fields;
 	}
 
-    scan_barcode_data() {
+	scan_barcode_data() {
 		const { scan_serial_no, scan_batch_no } = this.dialog.get_values();
 
 		this.dialog.set_value("enter_manually", 0);
 
-		let fieldname = '';
-		let party_name = '';
+		let fieldname = "";
+		let party_name = "";
 
-		if(this.frm.doc.is_return) {
-			if (['Delivery Note', 'Sales Invoice'].includes(this.frm.doc.doctype)) {
-				fieldname = 'customer';
+		if (this.frm.doc.is_return) {
+			if (["Delivery Note", "Sales Invoice"].includes(this.frm.doc.doctype)) {
+				fieldname = "customer";
 				party_name = this.frm.doc.customer;
-			} else if (['Purchase Invoice', 'Purchase Receipt'].includes(this.frm.doc.doctype)) {
-				fieldname = 'supplier';
+			} else if (["Purchase Invoice", "Purchase Receipt"].includes(this.frm.doc.doctype)) {
+				fieldname = "supplier";
 				party_name = this.frm.doc.supplier;
 			}
 		}
@@ -426,7 +434,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 					type_of_transaction: this.item.type_of_transaction,
 					serial_no: scan_serial_no,
 					batch_no: scan_batch_no,
-					warehouse: this.dialog.get_value("warehouse"),         // Customization Code Add Line
+					warehouse: this.dialog.get_value("warehouse"), // Customization Code Add Line
 					doctype: this.frm.doc.doctype,
 					fieldname: fieldname,
 					party_name: party_name,
@@ -438,19 +446,19 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 		}
 	}
 
-    // Customization Code Function Change Scan Serial No and IMEI No
+	// Customization Code Function Change Scan Serial No and IMEI No
 	async update_serial_batch_no() {
 		let { scan_serial_no, scan_batch_no } = this.dialog.get_values();
 		let serial_no_actual = scan_serial_no;
-		let custom_imei_no_1 = '';
-		let custom_serial_no_id = '';
+		let custom_imei_no_1 = "";
+		let custom_serial_no_id = "";
 
 		if (scan_serial_no) {
 			let response = await frappe.call({
 				method: "mittal_customization.overrides.serial_and_batch_bundle.get_serial_no_from_imei_no",
 				args: {
 					imei_no: scan_serial_no,
-				}
+				},
 			});
 
 			scan_serial_no = response.message.serial_no;
@@ -471,7 +479,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 				this.dialog.fields_dict.entries.df.data.push({
 					serial_no: scan_serial_no,
 					custom_serial_no_id: custom_serial_no_id,
-					custom_imei_no_1: custom_imei_no_1
+					custom_imei_no_1: custom_imei_no_1,
 				});
 
 				this.dialog.fields_dict.scan_serial_no.set_value("");
