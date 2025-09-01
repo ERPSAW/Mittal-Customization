@@ -48,7 +48,7 @@ class MitallDmsGeneration:
                 AND sbb.voucher_type = 'Purchase Invoice'
                 AND pi.posting_date BETWEEN '{filters.from_date}' AND '{filters.to_date}'
             ORDER BY
-                (pi.bill_date or pi.posting_date) ASC
+                pi.bill_date ASC
         """
 
 		result = frappe.db.sql(query, as_dict=1)
