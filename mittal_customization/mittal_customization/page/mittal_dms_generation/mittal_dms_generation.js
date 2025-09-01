@@ -56,7 +56,7 @@ frappe.pages["mittal-dms-generation"].on_page_load = function (wrapper) {
 	page.add_download_button = function () {
 		page.add_button("Download Text File", () => {
 			if (!filters.from_date || !filters.to_date || !filters.type) {
-				frappe.msgprint("Please select all filters.");
+				frappe.msgprint(__("Please select all filters."));
 				return;
 			}
 
