@@ -1,14 +1,14 @@
-frappe.pages['mittal-dms-generation'].on_page_load = function(wrapper) {
+frappe.pages["mittal-dms-generation"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
-		title: 'Mittal DMS Generation',
-		single_column: true
+		title: "Mittal DMS Generation",
+		single_column: true,
 	});
 
 	let filters = {
 		from_date: null,
 		to_date: null,
-		type: null
+		type: null,
 	};
 
 	this.page = page;
@@ -16,36 +16,36 @@ frappe.pages['mittal-dms-generation'].on_page_load = function(wrapper) {
 	this.form = new frappe.ui.FieldGroup({
 		fields: [
 			{
-                fieldtype: 'Date',
-                label: 'From Date',
-                fieldname: 'from_date',
-                onchange: function() {
-                    filters.from_date = this.value;
-                }
-            },
-			{
-                fieldtype: 'Column Break',
-            },
-			{
-				fieldtype: 'Date',
-				label: 'To Date',
-				fieldname: 'to_date',
-				onchange: function() {
-					filters.to_date = this.value;
-				}
+				fieldtype: "Date",
+				label: "From Date",
+				fieldname: "from_date",
+				onchange: function () {
+					filters.from_date = this.value;
+				},
 			},
 			{
-                fieldtype: 'Column Break',
-            },
+				fieldtype: "Column Break",
+			},
 			{
-				fieldtype: 'Select',
-				label: 'Type',
-				fieldname: 'type',
-				options: ['ISL', 'OSL'],
-				onchange: function() {
+				fieldtype: "Date",
+				label: "To Date",
+				fieldname: "to_date",
+				onchange: function () {
+					filters.to_date = this.value;
+				},
+			},
+			{
+				fieldtype: "Column Break",
+			},
+			{
+				fieldtype: "Select",
+				label: "Type",
+				fieldname: "type",
+				options: ["ISL", "OSL"],
+				onchange: function () {
 					filters.type = this.value;
-				}
-			}
+				},
+			},
 		],
 		body: this.page.body,
 	});
@@ -54,16 +54,16 @@ frappe.pages['mittal-dms-generation'].on_page_load = function(wrapper) {
 
 	// ➕ Add button to download filters as .txt file
 	page.add_download_button = function () {
-		page.add_button('Download Text File', () => {
+		page.add_button("Download Text File", () => {
 			if (!filters.from_date || !filters.to_date || !filters.type) {
-				frappe.msgprint('Please select all filters.');
+				frappe.msgprint("Please select all filters.");
 				return;
 			}
 
 			frappe.call({
-				method: 'mittal_customization.mittal_customization.page.mittal_dms_generation.mittal_dms_generation.download_text_file',
+				method: "mittal_customization.mittal_customization.page.mittal_dms_generation.mittal_dms_generation.download_text_file",
 				args: {
-					filters: filters
+					filters: filters,
 				},
 				callback: function (r) {
 					if (r.message) {
@@ -71,9 +71,9 @@ frappe.pages['mittal-dms-generation'].on_page_load = function(wrapper) {
 						const file_name = r.message.file_name;
 
 						// Create a .txt file and trigger download
-						const blob = new Blob([content], { type: 'text/plain' });
+						const blob = new Blob([content], { type: "text/plain" });
 						const url = URL.createObjectURL(blob);
-						const a = document.createElement('a');
+						const a = document.createElement("a");
 						a.href = url;
 						a.download = `${file_name}.txt`;
 						document.body.appendChild(a);
@@ -81,11 +81,10 @@ frappe.pages['mittal-dms-generation'].on_page_load = function(wrapper) {
 						document.body.removeChild(a);
 						URL.revokeObjectURL(url);
 					}
-				}
+				},
 			});
 		});
 	};
-
 
 	page.add_download_button();
 };
