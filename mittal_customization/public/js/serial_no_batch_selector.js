@@ -171,7 +171,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 		}
 
 		if (this.item?.type_of_transaction === "Outward") {
-			fields = [...this.get_filter_fields(), ...fields];
+			fields = [...this.get_filter_fields(), ...fields, ...this.get_attach_field()];
 		} else {
 			fields = [...fields, ...this.get_attach_field()];
 		}
