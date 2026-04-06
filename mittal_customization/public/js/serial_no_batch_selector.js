@@ -210,8 +210,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 				label: __("Enter Manually"),
 				fieldname: "enter_manually",
 				default: 0, // Customization Code Line Change
-				depends_on:
-					"eval:doc.import_using_csv_file !== 1 && !((cur_frm.doc.doctype=='Sales Invoice' && cur_frm.doc.update_stock==1) || (cur_frm.doc.doctype=='Stock Entry' && cur_frm.doc.stock_entry_type=='Material Transfer'))",
+				depends_on: "eval:doc.import_using_csv_file !== 1",
 				change() {
 					if (me.dialog.get_value("enter_manually")) {
 						me.dialog.set_value("import_using_csv_file", 0);
@@ -226,8 +225,7 @@ class CustomSerialNoBatchBundleUpdate extends erpnext.SerialBatchPackageSelector
 				fieldtype: "Check",
 				label: __("Import Using CSV file"),
 				fieldname: "import_using_csv_file",
-				depends_on:
-					"eval:doc.import_using_csv_file !== 1 && !((cur_frm.doc.doctype=='Sales Invoice' && cur_frm.doc.update_stock==1) || (cur_frm.doc.doctype=='Stock Entry' && cur_frm.doc.stock_entry_type=='Material Transfer'))",
+				depends_on: "eval:doc.enter_manually !== 1",
 				default: !this.item.has_serial_no ? 1 : 0,
 				change() {
 					if (me.dialog.get_value("import_using_csv_file")) {
