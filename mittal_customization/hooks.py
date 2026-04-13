@@ -28,6 +28,10 @@ app_license = "mit"
 # app_include_css = "/assets/mittal_customization/css/mittal_customization.css"
 app_include_js = "/assets/mittal_customization/js/serial_no_batch_selector.js"
 
+website_route_rules = [
+    {"from_route": "/customer-portal", "to_route": "customer-portal"},
+]
+
 # include js, css files in header of web template
 # web_include_css = "/assets/mittal_customization/css/mittal_customization.css"
 # web_include_js = "/assets/mittal_customization/js/mittal_customization.js"
@@ -180,6 +184,9 @@ override_whitelisted_methods = {
 	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.add_serial_batch_ledgers": "mittal_customization.overrides.serial_and_batch_bundle.add_serial_batch_ledgers",
 	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.upload_csv_file": "mittal_customization.overrides.serial_and_batch_bundle.upload_csv_file",
 	"erpnext.stock.doctype.serial_and_batch_bundle.serial_and_batch_bundle.get_auto_data": "mittal_customization.overrides.serial_and_batch_bundle.get_auto_data",
+	"mittal_customization.customer_portal_api.get_ledger": "mittal_customization.customer_portal_api.get_ledger",
+	"mittal_customization.customer_portal_api.get_outstanding": "mittal_customization.customer_portal_api.get_outstanding",
+	"mittal_customization.customer_portal_api.get_payments": "mittal_customization.customer_portal_api.get_payments",
 }
 #
 # each overriding function accepts a `data` argument;
