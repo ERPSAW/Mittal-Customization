@@ -29,7 +29,7 @@ app_license = "mit"
 app_include_js = "/assets/mittal_customization/js/serial_no_batch_selector.js"
 
 website_route_rules = [
-    {"from_route": "/retailer-portal", "to_route": "retailer-portal"},
+    {"from_route": "/retailerportal", "to_route": "retailerportal"},
 ]
 
 # include js, css files in header of web template
