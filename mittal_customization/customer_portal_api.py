@@ -300,3 +300,23 @@ def get_payments(from_date, to_date):
         "payments": payments,
         "total_paid": total_paid
     }
+
+
+@frappe.whitelist()
+def get_invoice_pdf(invoice_no):
+    """Generate and return PDF for a sales invoice"""
+    customer = validate_customer_access()
+
+    # Verify this invoice belongs to the customer
+    invoice_customer = frappe.db.get_value("Sales Invoice", invoice_no, "customer")
+    if invoice_customer != customer:
+        frappe.throw("You don't have access to this invoice", frappe.PermissionError)
+
+    # Generate PDF
+    from frappe.utils.pdf import get_pdf
+    html = frappe.get_print("Sales Invoice", invoice_no)
+    pdf = get_pdf(html)
+
+    frappe.local.response.filename = "{}.pdf".format(invoice_no)
+    frappe.local.response.filecontent = pdf
+    frappe.local.response.type = "pdf"
