@@ -261,7 +261,15 @@
 {% if not is_guest and not no_customer %}
 <script>
     function doLogout() {
-        window.location.href = '/api/method/logout?redirect_to=/retailerportal';
+        var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/method/logout', true);
+    xhr.onload = function() {
+        window.location.href = '/retailerportal';
+    };
+    xhr.onerror = function() {
+        window.location.href = '/retailerportal';
+    };
+    xhr.send();
     }
 
     // Set default dates
