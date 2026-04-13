@@ -187,6 +187,7 @@ override_whitelisted_methods = {
 	"mittal_customization.customer_portal_api.get_ledger": "mittal_customization.customer_portal_api.get_ledger",
 	"mittal_customization.customer_portal_api.get_outstanding": "mittal_customization.customer_portal_api.get_outstanding",
 	"mittal_customization.customer_portal_api.get_payments": "mittal_customization.customer_portal_api.get_payments",
+	"mittal_customization.customer_portal_api.get_invoice_pdf": "mittal_customization.customer_portal_api.get_invoice_pdf",
 }
 #
 # each overriding function accepts a `data` argument;
