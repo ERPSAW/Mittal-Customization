@@ -7,14 +7,12 @@ def get_context(context):
     context.no_breadcrumbs = True
     context.title = "Customer Portal - Mittal Infocom"
 
-    # If guest, show login form
     if frappe.session.user == "Guest":
         context.is_guest = True
         context.customer = None
         context.customer_name = None
         return context
 
-    # Get customer linked to this user
     customer = get_customer_for_user(frappe.session.user)
 
     if not customer:
@@ -33,7 +31,6 @@ def get_context(context):
 
 
 def get_customer_for_user(user):
-    """Find the Customer linked to this user's email via Dynamic Link in Contact"""
     customer = frappe.db.sql("""
         SELECT dl.link_name
         FROM `tabContact` c
@@ -46,7 +43,6 @@ def get_customer_for_user(user):
     if customer:
         return customer[0].link_name
 
-    # Fallback: check Contact Email table
     customer = frappe.db.sql("""
         SELECT dl.link_name
         FROM `tabContact Email` ce
@@ -59,17 +55,5 @@ def get_customer_for_user(user):
 
     if customer:
         return customer[0].link_name
-
-    return None        return customer[0].link_name
-
-    # Method 2: Check if user email matches a Customer's name or primary contact
-    customer = frappe.db.sql("""
-        SELECT name FROM `tabCustomer`
-        WHERE name = %s OR customer_name = %s
-        LIMIT 1
-    """, (user, user), as_dict=True)
-
-    if customer:
-        return customer[0].name
 
     return None
