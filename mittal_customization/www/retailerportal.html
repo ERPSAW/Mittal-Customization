@@ -501,7 +501,7 @@
 
         var html = '<table class="data-table"><thead><tr>' +
             '<th>#</th><th>Invoice No.</th><th>Invoice Date</th><th>Due Date</th>' +
-            '<th class="text-right">Invoice Amount (\u20B9)</th><th class="text-right">Outstanding (\u20B9)</th><th class="text-center">Overdue Days</th>' +
+            '<th class="text-right">Invoice Amount (\u20B9)</th><th class="text-right">Outstanding (\u20B9)</th>'<th class="text-center">Overdue Days</th><th class="text-center">PDF</th>' +
             '</tr></thead><tbody>';
 
         data.invoices.forEach(function(inv, i) {
@@ -512,11 +512,12 @@
                 '<td>' + inv.due_date + '</td>' +
                 '<td class="text-right">' + formatCurrency(inv.grand_total) + '</td>' +
                 '<td class="text-right">' + formatCurrency(inv.outstanding_amount) + '</td>' +
-                '<td class="text-center ' + overdueClass + '">' + (inv.overdue_days > 0 ? inv.overdue_days + ' days' : 'Not due') + '</td></tr>';
+                '<td class="text-center ' + overdueClass + '">' + (inv.overdue_days > 0 ? inv.overdue_days + ' days' : 'Not due') + '</td>' +
+				'<td class="text-center"><a href="/api/method/mittal_customization.customer_portal_api.get_invoice_pdf?invoice_no=' + inv.invoice_no + '" target="_blank" style="color:#C8902F;font-weight:600;text-decoration:none;">Download</a></td></tr>';
         });
 
         html += '<tr class="total-row"><td></td><td colspan="4">Total</td>' +
-            '<td class="text-right">' + formatCurrency(data.total_outstanding) + '</td><td></td></tr>';
+            '<td class="text-right">' + formatCurrency(data.total_outstanding) + '</td><td></td><td></td></tr>';
 
         html += '</tbody></table>';
         document.getElementById('outstanding-data').innerHTML = html;
