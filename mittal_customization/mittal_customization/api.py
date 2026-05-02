@@ -18,7 +18,8 @@ def get_statement_pdf(customer, from_date, to_date):
     
     from erpnext.accounts.report.general_ledger.general_ledger import execute as gl_execute
     
-    filters = {
+    # IMPORTANT: General Ledger expects frappe._dict, not regular dict
+    filters = frappe._dict({
         "company": company,
         "from_date": from_date,
         "to_date": to_date,
@@ -26,7 +27,7 @@ def get_statement_pdf(customer, from_date, to_date):
         "party": [customer],
         "group_by": "Group by Voucher (Consolidated)",
         "show_opening_entries": 1,
-    }
+    })
     
     result = gl_execute(filters)
     columns = result[0] if len(result) > 0 else []
@@ -68,6 +69,4 @@ def get_statement_pdf(customer, from_date, to_date):
     
     pdf = get_pdf(html, {"orientation": "Portrait", "page-size": "A4"})
     
-    frappe.local.response.filename = f"Statement-{customer}-{from_date}-to-{to_date}.pdf"
-    frappe.local.response.filecontent = pdf
-    frappe.local.response.type = "pdf"
+    frappe.local.response.filename =
