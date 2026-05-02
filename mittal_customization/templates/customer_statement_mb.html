@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Customer Statement</title>
+<style>
+@page { size: A4; margin: 15mm; }
+body { font-family: Arial, sans-serif; font-size: 10px; color: #333; }
+.header { text-align: center; border-bottom: 2px solid #1e40af; padding-bottom: 10px; margin-bottom: 15px; }
+.header h1 { color: #1e40af; margin: 0; font-size: 18px; }
+.header h2 { margin: 5px 0; font-size: 14px; color: #555; }
+.meta-table { width: 100%; margin-bottom: 15px; }
+.meta-table td { padding: 4px 8px; }
+.meta-table .label { color: #666; font-weight: bold; }
+table.transactions { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table.transactions th { background: #1e40af; color: white; padding: 6px; text-align: left; font-size: 10px; }
+table.transactions td { padding: 5px 6px; border-bottom: 1px solid #e5e7eb; font-size: 9px; }
+table.transactions tr:nth-child(even) td { background: #f9fafb; }
+.text-right { text-align: right; }
+.opening-row td { font-weight: bold; background: #e0e7ff !important; padding: 8px 6px; }
+.totals-row td { font-weight: bold; background: #fef3c7 !important; padding: 8px 6px; }
+.closing-row td { font-weight: bold; background: #dbeafe !important; color: #1e40af; padding: 8px 6px; font-size: 11px; }
+.footer { margin-top: 20px; text-align: center; font-size: 9px; color: #888; border-top: 1px solid #e5e7eb; padding-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Mittal Infocom Private Limited</h1>
+  <h2>Customer Statement</h2>
+</div>
+
+<table class="meta-table">
+  <tr>
+    <td class="label">Customer:</td>
+    <td><strong>{{ customer }}</strong></td>
+    <td class="label text-right">Period:</td>
+    <td>{{ from_date }} to {{ to_date }}</td>
+  </tr>
+  {% if customer_doc.tax_id %}
+  <tr>
+    <td class="label">GSTIN:</td>
+    <td>{{ customer_doc.tax_id }}</td>
+    <td class="label text-right">Generated on:</td>
+    <td>{{ now }}</td>
+  </tr>
+  {% endif %}
+</table>
+
+<table class="transactions">
+  <thead>
+    <tr>
+      <th width="11%">Date</th>
+      <th width="13%">Voucher Type</th>
+      <th width="20%">Voucher No</th>
+      <th width="14%" class="text-right">Debit</th>
+      <th width="14%" class="text-right">Credit</th>
+      <th width="14%" class="text-right">Balance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="opening-row">
+      <td colspan="5" class="text-right">Opening Balance:</td>
+      <td class="text-right">{{ '{:,.2f}'.format(opening_balance) }}</td>
+    </tr>
+    
+    {% for t in transactions %}
+    <tr>
+      <td>{{ frappe.utils.formatdate(t.posting_date, 'dd-MM-yyyy') }}</td>
+      <td>{{ t.voucher_type }}</td>
+      <td>{{ t.voucher_no }}</td>
+      <td class="text-right">{{ '{:,.2f}'.format(t.debit) if t.debit else '' }}</td>
+      <td class="text-right">{{ '{:,.2f}'.format(t.credit) if t.credit else '' }}</td>
+      <td class="text-right">{{ '{:,.2f}'.format(t.balance) }}</td>
+    </tr>
+    {% endfor %}
+    
+    <tr class="totals-row">
+      <td colspan="3" class="text-right">Total:</td>
+      <td class="text-right">{{ '{:,.2f}'.format(total_debit) }}</td>
+      <td class="text-right">{{ '{:,.2f}'.format(total_credit) }}</td>
+      <td></td>
+    </tr>
+    
+    <tr class="closing-row">
+      <td colspan="5" class="text-right">Closing Balance:</td>
+      <td class="text-right">Rs. {{ '{:,.2f}'.format(closing_balance) }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="footer">
+  This is a system-generated statement. For queries, please contact your ASM.<br>
+  Mittal Infocom Private Limited | GSTIN: 27AAICM8474F1Z2
+</div>
+
+</body>
+</html>
